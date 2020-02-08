@@ -105,9 +105,9 @@ def train_model(model, source, target, pairs, num_iteration=20000):
         total_loss_iterations += loss
 
         if ite % 5000 == 0:
-            avarage_loss = total_loss_iterations / 5000
+            average_loss = total_loss_iterations / 5000
             total_loss_iterations = 0
-            print('%d %.4f' % (ite, avarage_loss))
+            print('%d %.4f' % (ite, average_loss))
 
     torch.save(model.state_dict(), 'mytraining.pt')
     return model
@@ -138,40 +138,41 @@ def evaluate(model, input_lang, output_lang, sentences, max_length=MAX_LENGTH):
 def evaluate_randomly(model, source, target, pairs, n=10):
     for i in range(n):
         pair = random.choice(pairs)
-        print('source{}'.format(pair[0]))
-        print('target{}'.format(pair[1]))
+        print('source {}'.format(pair[0]))
+        print('target {}'.format(pair[1]))
         output_words = evaluate(model, source, target, pair)
         output_sentence = ' '.join(output_words)
-        print('predicted{}'.format(output_sentence))
+        print('predicted {}'.format(output_sentence))
 
 
 if __name__ == '__main__':
     lang1 = 'eng'
-    lang2 = 'kan'
-    source, target, pairs = process_data('resources/', lang1, lang2)
+    lang2 = 'ind'
+    source, target, pairs = process_data('resources', lang1, lang2)
 
     randomize = random.choice(pairs)
     print('random sentence {}'.format(randomize))
 
-    # print number of words
+    # # print number of words
     input_size = source.n_words
     output_size = target.n_words
     print('Input : {} Output : {}'.format(input_size, output_size))
 
     embed_size = 256
     hidden_size = 512
-    num_layers = 1
-    num_iteration = 100000
-
-    # create encoder-decoder model
+    num_layers = 2
+    num_iteration = 500000
+    #
+    # # create encoder-decoder model
     encoder = Encoder(input_size, hidden_size, embed_size, num_layers)
     decoder = Decoder(output_size, hidden_size, embed_size, num_layers)
 
     model = Seq2Seq(encoder, decoder, device).to(device)
-
-    # print model
-    print(encoder)
-    print(decoder)
+    #
+    # # print model
+    # print(encoder)
+    # print(decoder)
 
     model = train_model(model, source, target, pairs, num_iteration)
+    # model.load_state_dict(torch.load('mytraining.pt', map_location=device))
     evaluate_randomly(model, source, target, pairs)

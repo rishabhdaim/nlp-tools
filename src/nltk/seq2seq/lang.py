@@ -23,27 +23,27 @@ class Lang:
         for word in sentence.split(' '):
             self.add_word(word)
 
-    def add_word(self, word):
+    def add_word(self, w):
         # If the word is not in the container, the word will be added to it,
         # else, update the word counter
-        if word not in self.word2index:
-            self.word2index[word] = self.n_words
-            self.word2count[word] = 1
-            self.index2word[self.n_words] = word
+        if w not in self.word2index:
+            self.word2index[w] = self.n_words
+            self.word2count[w] = 1
+            self.index2word[self.n_words] = w
             self.n_words += 1
         else:
-            self.word2count[word] += 1
+            self.word2count[w] += 1
 
 
 def read_file(loc, lang1, lang2):
-    df = pd.read_csv(loc, delimiter='\t', header=None, names=[lang1, lang2])
+    df = pd.read_csv(loc, delimiter='\t', header=0, names=[lang1, lang2, 'text'])
     return df
 
 
 # Normalize every sentence
 def normalize_sentence(df, lang):
     sentence = df[lang].str.lower()
-    sentence = sentence.str.replace('[^\w\s]+', '')
+    sentence = sentence.str.replace('[^A-Za-z\s]+', '')
     sentence = sentence.str.normalize('NFD')
     sentence = sentence.str.encode('ascii', errors='ignore').str.decode('utf-8')
     return sentence
