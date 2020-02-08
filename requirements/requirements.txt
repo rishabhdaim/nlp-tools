@@ -6,3 +6,5 @@ pandas
 textblob
 torch
 torchvision
+beautifulsoup4
+pattern
