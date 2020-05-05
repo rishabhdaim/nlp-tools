@@ -85,31 +85,33 @@ def clac_model(model, input_tensor, target_tensor, model_optimizer, criterion):
     return epoch_loss
 
 
-def train_model(model, source, target, pairs, num_iteration=20000):
+def train_model(model, source, target, pairs, num_iteration):
     model.train()
 
     optimizer = optim.SGD(model.parameters(), lr=0.01)
     criterion = nn.NLLLoss()
     total_loss_iterations = 0
 
-    training_pairs = [tensors_from_pair(source, target, random.choice(pairs))
-                      for i in range(num_iteration)]
+    training_pairs = [tensors_from_pair(source, target, pair) for pair in pairs]
+
+    print('Size of training pair is %d' % (len(training_pairs)))
 
     for ite in range(1, num_iteration + 1):
-        training_pair = training_pairs[ite - 1]
-        input_tensor = training_pair[0]
-        target_tensor = training_pair[1]
+        for training_pair in training_pairs:
+            input_tensor = training_pair[0]
+            target_tensor = training_pair[1]
 
-        loss = clac_model(model, input_tensor, target_tensor, optimizer, criterion)
+            # print('Input %s && output %s', input_tensor, target_tensor)
 
-        total_loss_iterations += loss
+            loss = clac_model(model, input_tensor, target_tensor, optimizer, criterion)
 
-        if ite % 5000 == 0:
-            average_loss = total_loss_iterations / 5000
+            total_loss_iterations += loss
+
+        if ite % 2 == 0:
+            average_loss = total_loss_iterations / 2
             total_loss_iterations = 0
             print('%d %.4f' % (ite, average_loss))
 
-    torch.save(model.state_dict(), 'mytraining.pt')
     return model
 
 
@@ -160,8 +162,8 @@ if __name__ == '__main__':
 
     embed_size = 256
     hidden_size = 512
-    num_layers = 2
-    num_iteration = 500000
+    num_layers = 1
+    num_iteration = 200
     #
     # # create encoder-decoder model
     encoder = Encoder(input_size, hidden_size, embed_size, num_layers)
